@@ -10,7 +10,7 @@
   Version 1.0  
 
   .DESCRIPTION 
-  In preperation to configure Out-Of-Office (OFF) settings for users, any existing rule needs to sbe deleted.
+  In preperation to configure Out-Of-Office (OFF) settings for users, any existing rule needs to be deleted.
 
   The script will use either an exisiting Exchange Server EWS library or the Managed EWS library installed using the default file path.
 

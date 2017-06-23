@@ -32,7 +32,7 @@
     OU for filtering user objects
     
     .PARAMETER RemoveRights
-    Swith to control, if ExternalOofOptions rights should be removed
+    Switch to control, if ExternalOofOptions rights should be removed
 
     .EXAMPLE
     .\Set-ExternalOOF.ps1
