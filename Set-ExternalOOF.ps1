@@ -7,7 +7,7 @@
     THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
     RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 	
-    Version 1.2
+    Version 1.0
 	
     .DESCRIPTION
     This script sets the mailbox ExternalOofOptions to 'External' for members of a given security group.
@@ -23,7 +23,7 @@
  
     Revision History 
     -------------------------------------------------------------------------------- 
-    1.2 Inital community release
+    1.0 Inital community release
    
     .PARAMETER ADGroup
     Defines the Active Directory security group which holds the users allowed for external OOF. If user is part of the group ExternalOofOptions would be set to 'External'

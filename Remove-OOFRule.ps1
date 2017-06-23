@@ -1,6 +1,6 @@
 <#
   .SYNOPSIS 
-  This script searches for OOF rules created by users using the Outlook rule-tab in the OOF assistant and delete exisiting rules.
+  This script searches for OOF rules created by users using the Outlook rule-tab in the OOF assistant and deletes exisiting OOF rules.
 
   Thomas Stensitzki, TSC
 	
@@ -10,7 +10,7 @@
   Version 1.0  
 
   .DESCRIPTION 
-  In preperation to configure Out-Of-Office (OFF) settings for users, any existing rule needs to be deleted.
+  In preparation to configure Out-Of-Office (OFF) settings for users, any existing rule needs to be deleted.
 
   The script will use either an exisiting Exchange Server EWS library or the Managed EWS library installed using the default file path.
 
