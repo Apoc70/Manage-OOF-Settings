@@ -20,6 +20,7 @@
     
   .NOTES 
   Requirements 
+  - Exchange Management Shell (EMS) 2013+
   - GlobalFunctions library as described here: http://scripts.granikos.eu
   - Locally installed Exchange Web Services (EWS) Library, https://www.microsoft.com/en-us/download/details.aspx?id=42951
     
@@ -30,7 +31,7 @@
   This PowerShell script has been developed using ISESteroids - www.powertheshell.com 
 
   .PARAMETER Mailbox
-  TBD
+  User mailbox alias, when removing OOF rule from a single mailbox
 
   .PARAMETER Delete
   Switch to finally delete any exisiting OOF rules in the user mailbox
