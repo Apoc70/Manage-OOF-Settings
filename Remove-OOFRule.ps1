@@ -2,7 +2,7 @@
   .SYNOPSIS 
   This script searches for OOF rules created by users using the Outlook rule-tab in the OOF assistant and deletes exisiting OOF rules.
 
-  Thomas Stensitzki, TSC
+  Thomas Stensitzki, Torsten Schlopsnies
 	
   THIS CODE IS MADE AVAILABLE AS IS, WITHOUT WARRANTY OF ANY KIND. THE ENTIRE 
   RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
@@ -17,7 +17,10 @@
   The script is based on Rhoderick Milne's script
   - Blog: https://blogs.technet.microsoft.com/rmilne/
   - Script: https://blogs.technet.microsoft.com/mspfe/2015/07/22/using-exchange-ews-to-delete-corrupt-oof/
-    
+  
+  .LINK
+  http://scripts.granikos.eu   
+
   .NOTES 
   Requirements 
   - Exchange Management Shell (EMS) 2013+
@@ -26,7 +29,8 @@
     
   Revision History 
   -------------------------------------------------------------------------------- 
-  1.0      Initial release 
+  1.0 Initial release
+  1.1 PowerHygiene, Powerformane optimization
 
   This PowerShell script has been developed using ISESteroids - www.powertheshell.com 
 
@@ -58,13 +62,15 @@
 
 [CmdletBinding()]
 Param(
-  [string]$Mailbox,
+  [string]$Mailbox = '',
   [switch]$Delete,
   [switch]$DebugLog
 )
 
 # Import global modules
 Import-Module GlobalFunctions
+
+$DefaultEwsPath = 'C:\Program Files\Microsoft\Exchange\Web Services\2.2\Microsoft.Exchange.WebServices.dll'
 
 $ScriptDir = Split-Path $script:MyInvocation.MyCommand.Path
 $ScriptName = $MyInvocation.MyCommand.Name
@@ -83,7 +89,7 @@ try {
   }
   else {
     # Use EWS managed API install path
-    $dllpath = 'C:\Program Files\Microsoft\Exchange\Web Services\2.2\Microsoft.Exchange.WebServices.dll'
+    $dllpath = $DefaultEwsPath
   }
   
   [void][Reflection.Assembly]::LoadFile($dllpath)
@@ -96,7 +102,7 @@ catch {
 }
 
 
-function Create-Service
+function New-EwsService
 {
   [CmdletBinding()]
   Param(
@@ -114,7 +120,7 @@ function Create-Service
   }
   catch {
     # Oops, something went wrong
-    $logger.Write("Failed creating the exchange web service for $($IdentityForService). Check mailbox name and impersonation rights.",1)
+    $logger.Write(('Failed creating the exchange web service for {0}. Check mailbox name and impersonation rights.' -f ($IdentityForService)),1)
     return
   }
   return $Service
@@ -141,7 +147,7 @@ function New-RuleSearch
   while($getMoreItems) { 
 
     # Setup Basic EWS Properties for Message Search - Used to locate Hidden Forwarding Rule 
-    $SearchFilterForwardRule         = New-Object Microsoft.Exchange.WebServices.Data.SearchFilter+ContainsSubstring([Microsoft.Exchange.WebServices.Data.ItemSchema]::ItemClass, "IPM", [Microsoft.Exchange.WebServices.Data.ContainmentMode]::Prefixed, [Microsoft.Exchange.WebServices.Data.ComparisonMode]::Exact) 
+    $SearchFilterForwardRule         = New-Object Microsoft.Exchange.WebServices.Data.SearchFilter+ContainsSubstring([Microsoft.Exchange.WebServices.Data.ItemSchema]::ItemClass, 'IPM', [Microsoft.Exchange.WebServices.Data.ContainmentMode]::Prefixed, [Microsoft.Exchange.WebServices.Data.ComparisonMode]::Exact) 
     $itemViewForwardRule             = New-object Microsoft.Exchange.WebServices.Data.ItemView($pageSize,$pageLimitOffset,[Microsoft.Exchange.WebServices.Data.OffsetBasePoint]::Beginning)
     $itemViewForwardRule.PropertySet = New-Object Microsoft.Exchange.WebServices.Data.PropertySet([Microsoft.Exchange.WebServices.Data.BasePropertySet]::FirstClassProperties, [Microsoft.Exchange.WebServices.Data.ItemSchema]::ItemClass, [Microsoft.Exchange.WebServices.Data.ItemSchema]::Subject) 
     $itemViewForwardRule.Traversal   = [Microsoft.Exchange.WebServices.Data.ItemTraversal]::Associated 
@@ -164,7 +170,7 @@ function New-RuleSearch
         if (($item.Itemclass -eq 'IPM.Rule.Version2.Message') -and ($item.ExtendedProperties[0].Value -eq 'MSFT:TDX OOF Rules')) {
           $propertySetForwardRule1.Add($PID_TAG_RULE_ACTION)
           $item.Load($propertySetForwardRule1)
-          if (($item.ExtendedProperties[1].Value -ne $null ) -and ($item.ExtendedProperties[1].Value[14] -eq "3")) {
+          if (($item.ExtendedProperties[1].Value -ne $null ) -and ($item.ExtendedProperties[1].Value[14] -eq '3')) {
           
             $RuleFound = $true
             $logger.Write(('Found a rule for Mailbox {0}.' -f ($MailboxToSearch)))
@@ -188,7 +194,7 @@ function New-RuleSearch
               $logger.Write('Rule successfully DELETED')
             }
             catch {
-              $logger.Write("Deletion for mailbox $($MailboxToSearch) failed",1)
+              $logger.Write(('Deletion for mailbox {0} failed' -f ($MailboxToSearch)),1)
             }
           }
         }
@@ -207,7 +213,7 @@ function New-RuleSearch
   if ($DebugLog) {
     if (-not ($RuleFound)) {
     
-      $logger.Write("No rule for mailbox $($MailboxToSearch) found")
+      $logger.Write(('No rule for mailbox {0} found' -f ($MailboxToSearch)))
       
     }
   }
@@ -224,13 +230,13 @@ if ($Mailbox.Length -gt 0) {
   }
   catch {
     # Oops
-    $logger.Write("Failed to load mailbox $($Mailbox)",1)
+    $logger.Write(('Failed to load mailbox {0}' -f ($Mailbox)),1)
     $logger.Write('Script aborted')
     exit(1)
   }
 
   # Create the web service for mailbox access
-  $Service = Create-Service -Identity $Identity
+  $Service = New-EwsService -Identity $Identity
   
   if ($Service) {
     New-RuleSearch -Service $Service -MailboxToSearch $Identity
@@ -249,10 +255,10 @@ else {
   
   ForEach ($UserMailbox in $Mailboxes) {
     try {
-      $Service = Create-Service -Identity $UserMailbox
+      $Service = New-EwsService -Identity $UserMailbox
     }
     catch {
-      $logger.Write("Failed to load mailbox $($UserMailbox)",1)
+      $logger.Write(('Failed to load mailbox {0}' -f ($UserMailbox)),1)
       $logger.Write('More than one mailbox to load - CONTINUE')
     }
     
