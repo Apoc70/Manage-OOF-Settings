@@ -65,7 +65,7 @@ RISK OF THE USE OR THE RESULTS FROM THE USE OF THIS CODE REMAINS WITH THE USER.
 
 Find the script at TechNet Gallery
 
-* [https://gallery.technet.microsoft.com/Set-external-OOF-settings-c9bee2ad](https://gallery.technet.microsoft.com/Set-external-OOF-settings-c9bee2ad)
+* [https://gallery.technet.microsoft.com/Remove-Out-Of-Office-rules-3f740964](https://gallery.technet.microsoft.com/Remove-Out-Of-Office-rules-3f740964)
 
 # Set-ExternalOOF.ps1
 
@@ -101,8 +101,6 @@ Switch to control, if ExternalOofOptions rights should be removed
 ```
 
 Run script with default settings
-
-``` PowerShell
 
 ## Note
 
